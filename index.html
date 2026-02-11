@@ -314,8 +314,8 @@
         /* D-pad area */
         #mobile-joy {
             position: relative;
-            width: 260px; /* стандартная ширина для крестовидного d-pad */
-            height: 240px; /* увеличена высота для лучшего разделения кнопок */
+            width: 340px; /* достаточно места для кнопок + промежутки */
+            height: 290px; /* оптимальная высота для крестовидного d-pad */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -325,8 +325,8 @@
 
         .dpad-btn {
             position: absolute;
-            width: 72px;
-            height: 72px;
+            width: 84px;
+            height: 84px;
             background: rgba(0,0,0,0.12);
             border: 2px solid rgba(0,255,150,0.95);
             border-radius: 50%;
@@ -334,7 +334,7 @@
             justify-content: center;
             align-items: center;
             color: var(--primary);
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
             transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
             user-select: none;
@@ -342,6 +342,7 @@
             -webkit-touch-callout: none;
             padding: 0;
             margin: 0;
+            flex-shrink: 0;
         }
 
         .dpad-btn:active {
@@ -352,16 +353,16 @@
         }
 
         /* стандартное расположение крестовидного d-pad */
-        #dpad-up { top: 12px; left: 50%; transform: translateX(-50%); }
-        #dpad-down { bottom: 12px; left: 50%; transform: translateX(-50%); }
+        #dpad-up { top: 0px; left: 50%; transform: translateX(-50%); }
+        #dpad-down { bottom: 0px; left: 50%; transform: translateX(-50%); }
         /* левый/правый по краям области dpad для удобства пальца */
-        #dpad-left { left: 18px; top: 50%; transform: translateY(-50%); }
-        #dpad-right { right: 18px; top: 50%; transform: translateY(-50%); }
+        #dpad-left { left: 0px; top: 50%; transform: translateY(-50%); }
+        #dpad-right { right: 0px; top: 50%; transform: translateY(-50%); }
 
         #dpad-center {
             position: absolute;
-            width: 72px;
-            height: 72px;
+            width: 84px;
+            height: 84px;
             background: rgba(0,0,0,0.12);
             border: 3px solid rgba(0,255,150,0.95);
             border-radius: 50%;
@@ -369,7 +370,7 @@
             justify-content: center;
             align-items: center;
             color: var(--primary);
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
             transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
             padding: 0;
@@ -393,11 +394,11 @@
             #canvas-wrap { position: relative; }
             #mobile-controls {
                 position: fixed;
-                bottom: calc(env(safe-area-inset-bottom, 12px) + 80px);
+                bottom: calc(env(safe-area-inset-bottom, 12px) + 100px);
                 left: 50%;
                 transform: translateX(-50%);
-                max-width: 420px;
-                width: calc(100% - 32px);
+                max-width: 500px;
+                width: calc(100% - 16px);
                 pointer-events: auto;
             }
         }
