@@ -447,7 +447,7 @@
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('records-table').style.display = 'block';
             const arr = JSON.parse(localStorage.getItem('snake_records') || '[]');
-            let html = '<table class="records-table"><tr><th>#</th><th>Score</th></tr>';
+            let html = '<table class="records-table"><tr><th>#</th><th>Бынӕттӕ</th></tr>';
             arr.forEach((r, i) => html += `<tr><td>${i+1}</td><td>${r.score}</td></tr>`);
             document.getElementById('records-val').innerHTML = html + '</table>';
         }
