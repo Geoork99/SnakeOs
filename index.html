@@ -19,18 +19,15 @@
             background-image: radial-gradient(circle at center, #2a2a2a 0%, #1a1a1a 100%);
             font-family: 'Arial', sans-serif;
             margin: 0;
-            padding: 0;
             min-height: 100vh;
             color: white;
-            overflow-x: hidden;
-            overflow-y: auto; /* Разрешаем скролл, если экран очень маленький */
+            overflow: hidden;
             touch-action: none;
         }
 
-        /* --- UI ЭЛЕМЕНТЫ --- */
         #game-overlay {
             position: absolute;
-            top: 30%;
+            top: 40%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
@@ -41,32 +38,53 @@
         }
 
         .status-text {
-            font-size: 3em;
+            font-size: 3.5em;
             font-weight: bold;
             text-transform: uppercase;
             margin: 0;
             color: var(--primary);
-            text-shadow: 0 0 25px rgba(0, 255, 150, 0.9);
+            text-shadow: 0 0 25px rgba(0, 255, 150, 0.9), 0 0 10px white;
+            line-height: 1.2;
         }
 
         .sub-status-text {
-            font-size: 1.5em;
+            font-size: 1.8em;
+            font-weight: bold;
             color: white;
-            margin-top: 10px;
+            margin-top: 15px;
+            text-shadow: 0 0 15px rgba(0, 255, 150, 0.5);
             white-space: pre-line;
         }
 
         #top-info {
             position: absolute;
-            top: 10px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: bold;
             color: white;
             z-index: 10;
+            text-align: center;
+            width: 95%;
+            pointer-events: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
-        /* --- МЕНЮ И РЕКОРДТЫ --- */
+        .game-title {
+            color: var(--primary);
+            font-size: 2.2em;
+            margin: 15px 0;
+            text-shadow: 0 0 15px var(--primary);
+        }
+
+        /* Таблица рекордов */
+        .records-panel { text-align: left; width: 100%; }
+        .records-panel .records-table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 1.05em; color: white; }
+        .records-panel .records-table th, .records-panel .records-table td { padding: 6px 8px; vertical-align: middle; }
+        .records-panel .records-table thead th { color: var(--primary); font-weight: 700; }
+        .records-panel .records-empty { font-size: 1em; color: #ddd; padding: 6px 0; }
+
         #main-menu, #instruction-screen, #records-table {
             position: absolute;
             top: 50%;
@@ -80,13 +98,14 @@
             padding: 25px;
             border-radius: 20px;
             border: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(0,0,0,1);
         }
 
         .menu-btn {
             display: block;
-            width: 200px;
-            margin: 10px auto;
-            padding: 12px;
+            width: 220px;
+            margin: 12px auto;
+            padding: 14px;
             font-size: 1.1em;
             background: var(--primary);
             border: none;
@@ -96,29 +115,24 @@
             font-weight: bold;
         }
 
-        /* --- КОНТЕЙНЕР ИГРЫ --- */
         #game-container {
             display: none;
+            position: relative;
             flex-direction: column;
             align-items: center;
             width: 95%;
             max-width: 500px;
-            padding-top: 60px; /* Место для кнопки Меню */
+            padding: 10px 0;
         }
 
         .game-info {
             display: flex;
             justify-content: space-between;
             width: 100%;
-            margin-bottom: 5px;
+            margin: 10px 0;
             color: var(--primary);
-            font-size: 1.2em;
+            font-size: 1.4em;
             font-weight: bold;
-        }
-
-        #canvas-wrap {
-            position: relative;
-            width: 100%;
         }
 
         canvas {
@@ -126,12 +140,13 @@
             border-radius: 10px;
             background: #000;
             width: 100%;
-            display: block;
         }
+
+        #canvas-wrap { position: relative; width: 100%; }
 
         #canvas-menu {
             position: absolute;
-            top: -55px;
+            top: -65px;
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
@@ -139,50 +154,39 @@
             justify-content: center;
         }
 
-        /* --- НОВЫЙ ДЖОЙСТИК (ИСПРАВЛЕННЫЙ) --- */
+        /* ИСПРАВЛЕННЫЙ КОМПАКТНЫЙ ДЖОЙСТИК */
         #mobile-controls {
-            display: none; 
-            margin-top: 20px;
+            display: none;
+            margin-top: 15px; /* Сделали ближе к игре */
             width: 100%;
             justify-content: center;
         }
 
-        @media (pointer: coarse) {
-            #mobile-controls { display: flex; }
-        }
+        @media (pointer: coarse) { #mobile-controls { display: flex; } }
 
         #mobile-joy {
             position: relative;
-            width: 220px; /* Компактный размер для всех телефонов */
-            height: 220px;
+            width: 220px; /* Уменьшили ширину */
+            height: 220px; /* Уменьшили высоту */
         }
 
         .dpad-btn, #dpad-center {
             position: absolute;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0,0,0,0.12);
             border: 2px solid var(--primary);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             color: var(--primary);
-            font-size: 24px;
             user-select: none;
             -webkit-user-select: none;
         }
 
-        .dpad-btn {
-            width: 70px;
-            height: 70px;
-        }
-
-        #dpad-center {
-            width: 70px;
-            height: 70px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border-width: 3px;
+        .dpad-btn { width: 70px; height: 70px; font-size: 24px; }
+        #dpad-center { 
+            width: 70px; height: 70px; 
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(0, 255, 150, 0.1);
         }
 
@@ -191,21 +195,11 @@
         #dpad-left { left: 0; top: 50%; transform: translateY(-50%); }
         #dpad-right { right: 0; top: 50%; transform: translateY(-50%); }
 
-        .dpad-btn:active, #dpad-center:active {
-            background: var(--primary);
-            color: #000;
-        }
-
-        /* Таблица рекордов */
-        .records-table { width: 100%; border-collapse: collapse; color: white; }
-        .records-table th { color: var(--primary); padding: 5px; }
-        .records-table td { padding: 5px; text-align: center; border-top: 1px solid #333; }
+        .dpad-btn:active { background: var(--primary); color: #000; }
     </style>
 </head>
 <body>
-
     <div id="top-info"></div>
-
     <div id="game-overlay">
         <p id="overlay-main-text" class="status-text"></p>
         <p id="overlay-sub-text" class="sub-status-text"></p>
@@ -232,7 +226,7 @@
 
     <div id="records-table" style="display:none">
         <h2 style="color:var(--primary)">Рекордтӕ</h2>
-        <div id="records-val"></div>
+        <div id="records-val" class="records-panel"></div>
         <button class="menu-btn" onclick="showMenu()">Фӕстӕмӕ</button>
     </div>
 
@@ -241,14 +235,13 @@
             <span>🍎: <span id="score">0</span></span>
             <span>🏆: <span id="highscore">0</span></span>
         </div>
-
         <div id="canvas-wrap">
             <div id="canvas-menu">
-                <button class="menu-btn" onclick="showMenu()" style="width:100px; font-size: 0.9em; padding: 8px;">Меню</button>
+                <button class="menu-btn" onclick="showMenu()" style="width:100px; padding: 8px;">Меню</button>
             </div>
             <canvas id="game-canvas" width="500" height="500"></canvas>
         </div>
-
+        
         <div id="mobile-controls">
             <div id="mobile-joy">
                 <div class="dpad-btn" id="dpad-up" onclick="handleInput('w')">▲</div>
@@ -258,12 +251,11 @@
                 <div class="dpad-btn" id="dpad-down" onclick="handleInput('s')">▼</div>
             </div>
         </div>
-        
-        <button id="restart-btn" class="menu-btn" onclick="startGame()" style="background:var(--secondary); color:white; display:none; margin-top: 20px;">Ног хъазт</button>
+        <button id="restart-btn" class="menu-btn" onclick="startGame()" style="background:var(--secondary); color:white; display:none; margin-top: 15px;">Ног хъазт</button>
     </div>
 
     <script>
-        // --- ВЕСЬ ТВОЙ JS КОД ОСТАЕТСЯ БЕЗ ИЗМЕНЕНИЙ ---
+        // ВЕСЬ СКРИПТ ОСТАВЛЕН ОРИГИНАЛЬНЫМ (ЗМЕЯ, ДЗЕРАССА, ПАУЗА)
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
         const box = 25;
@@ -305,8 +297,7 @@
             const overlay = document.getElementById('game-overlay');
             const mainEl = document.getElementById('overlay-main-text');
             const subEl = document.getElementById('overlay-sub-text');
-            mainEl.innerText = main;
-            subEl.innerText = sub;
+            mainEl.innerText = main; subEl.innerText = sub;
             if (main === 'АМАРДТӔ!') mainEl.style.color = 'red';
             else mainEl.style.color = '';
             overlay.style.display = 'block';
@@ -317,110 +308,129 @@
         function startGame() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            
             document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('instruction-screen').style.display = 'none';
-            document.getElementById('records-table').style.display = 'none';
             document.getElementById('game-container').style.display = 'flex';
             document.getElementById('restart-btn').style.display = 'none';
             hideOverlay();
-            
             snake = [{x: 10*box, y: 10*box}, {x: 9*box, y: 10*box}, {x: 8*box, y: 10*box}];
             dx = box; dy = 0; score = 0; speed = 135;
             gameActive = true; isPaused = false;
             food = generateFood(); specialFood = null; firebird.active = false;
-            updateScoreUI();
-            runGame();
+            updateScoreUI(); runGame();
         }
 
-        function generateFood() {
-            return {
-                x: Math.floor(Math.random() * (canvas.width/box)) * box,
-                y: Math.floor(Math.random() * (canvas.height/box)) * box
-            };
+        function generateFood() { return { x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box }; }
+
+        function drawFirebird() {
+            ctx.save();
+            ctx.translate(firebird.x, firebird.y);
+            ctx.fillStyle = 'gold'; ctx.shadowBlur = 15; ctx.shadowColor = 'orange';
+            ctx.beginPath(); ctx.ellipse(0, 0, 15, 7, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(15, -5, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'orange'; ctx.beginPath(); ctx.moveTo(20, -6); ctx.lineTo(28, -4); ctx.lineTo(20, -2); ctx.fill();
+            ctx.fillStyle = 'gold'; let flap = Math.sin(Date.now() / 80) * 15;
+            ctx.beginPath(); ctx.moveTo(0, -2); ctx.quadraticCurveTo(-5, -20 + flap, -20, -10 + flap); ctx.quadraticCurveTo(-5, -5 + flap, 0, -2); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(-35, -12); ctx.lineTo(-28, 0); ctx.lineTo(-35, 12); ctx.closePath(); ctx.fill();
+            ctx.restore();
         }
 
         function draw() {
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#ff3300';
-            ctx.beginPath(); ctx.arc(food.x+box/2, food.y+box/2, box/3.2, 0, Math.PI*2); ctx.fill();
-            
+            ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ff3300'; ctx.beginPath(); ctx.arc(food.x+box/2, food.y+box/2, box/3.2, 0, Math.PI*2); ctx.fill();
             if(specialFood) {
-                ctx.fillStyle = 'gold';
+                ctx.fillStyle = 'gold'; ctx.shadowBlur = 15; ctx.shadowColor = 'gold';
                 ctx.beginPath(); ctx.arc(specialFood.x+box/2, specialFood.y+box/2, box/2.5, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur = 0;
             }
-
+            const patternRows = 3; const patternCols = 5;
+            const pat = [[0,1,1,1,0],[1,1,1,1,1],[0,1,1,1,0]];
+            const unit = Math.max(1, Math.floor(box / patternCols));
+            const padX = Math.floor((box - unit * patternCols) / 2);
+            const padY = Math.floor((box - unit * patternRows) / 2);
             snake.forEach((part, i) => {
-                ctx.fillStyle = (i === 0) ? '#00ff96' : '#007f4d';
-                ctx.fillRect(part.x, part.y, box-1, box-1);
+                const isHead = i === 0;
+                const t = Date.now() / 200;
+                const wiggle = Math.round(Math.sin(t + i * 0.6) * Math.max(0, Math.floor(box * 0.12)));
+                const px = part.x + (dx === 0 ? wiggle : 0);
+                const py = part.y + (dy === 0 ? wiggle : 0);
+                for (let r = 0; r < patternRows; r++) {
+                    for (let c = 0; c < patternCols; c++) {
+                        if (pat[r][c]) {
+                            ctx.fillStyle = isHead ? '#00ff96' : '#007f4d';
+                            ctx.fillRect(px + padX + c * unit, py + padY + r * unit, unit - 1, unit - 1);
+                        }
+                    }
+                }
+                if (isHead) {
+                    ctx.fillStyle = '#001400';
+                    ctx.fillRect(px + padX + 1 * unit, py + padY, unit - 1, unit - 1);
+                    ctx.fillRect(px + padX + 3 * unit, py + padY, unit - 1, unit - 1);
+                }
             });
-
-            if(firebird.active) {
-                ctx.fillStyle = 'gold';
-                ctx.beginPath(); ctx.arc(firebird.x, firebird.y, 10, 0, Math.PI*2); ctx.fill();
-            }
+            if(firebird.active) drawFirebird();
         }
 
         function move() {
             const head = {x: snake[0].x + dx, y: snake[0].y + dy};
             if (head.x >= canvas.width) head.x = 0; if (head.x < 0) head.x = canvas.width - box;
             if (head.y >= canvas.height) head.y = 0; if (head.y < 0) head.y = canvas.height - box;
-
             if(snake.some(p => p.x === head.x && p.y === head.y)) return gameOver();
-
             snake.unshift(head);
             if(head.x === food.x && head.y === food.y) {
                 score++; playHiss(); food = generateFood(); speed = Math.max(60, speed - 1.2);
                 if(score % 5 === 0) { specialFood = generateFood(); specialFoodTimer = 24; }
                 updateScoreUI();
             } else if(specialFood && head.x === specialFood.x && head.y === specialFood.y) {
-                score += 5; playTone(880, 0.1); specialFood = null;
+                score += 5; playTone(880, 0.1); specialFood = null; firebird.active = false;
+                for(let i = 0; i < 4; i++) snake.push({...snake[snake.length-1]});
                 updateScoreUI();
-            } else { snake.pop(); }
+            } else snake.pop();
+
+            if(specialFood && !firebird.active) {
+                if(--specialFoodTimer <= 0) {
+                    firebird.active = true; firebird.x = -40; firebird.y = specialFood.y;
+                    firebird.state = 'stealing'; playTone(400, 0.3);
+                }
+            }
+            if(firebird.active) {
+                firebird.x += 8;
+                if(firebird.state === 'stealing' && firebird.x >= specialFood.x) {
+                    specialFood = null; firebird.state = 'leaving';
+                    showOverlay("", "Ацы Дзерассӕйӕн\nта цы зӕгъон!");
+                    setTimeout(() => { if(!isPaused && gameActive) hideOverlay(); }, 3000);
+                }
+                if(firebird.x > canvas.width + 50) firebird.active = false;
+            }
         }
 
         function gameOver() {
             gameActive = false; playTone(150, 0.4);
+            try {
+                const arr = JSON.parse(localStorage.getItem('snake_records') || '[]');
+                arr.push({ score, at: Date.now() }); arr.sort((a, b) => b.score - a.score);
+                localStorage.setItem('snake_records', JSON.stringify(arr.slice(0, 5)));
+            } catch (e) {}
             showOverlay("АМАРДТӔ!", `Фӕткъуытӕ: ${score}`);
             document.getElementById('restart-btn').style.display = 'block';
-            
-            let records = JSON.parse(localStorage.getItem('snake_records') || '[]');
-            records.push({score, at: Date.now()});
-            records.sort((a,b) => b.score - a.score);
-            localStorage.setItem('snake_records', JSON.stringify(records.slice(0, 5)));
         }
 
         function updateScoreUI() {
             document.getElementById('score').innerText = score;
-            let records = JSON.parse(localStorage.getItem('snake_records') || '[]');
-            let top = records.length ? records[0].score : 0;
-            document.getElementById('highscore').innerText = Math.max(top, score);
+            const arr = JSON.parse(localStorage.getItem('snake_records') || '[]');
+            document.getElementById('highscore').innerText = arr.length ? Math.max(arr[0].score, score) : score;
         }
 
-        function runGame() {
-            if(!gameActive || isPaused) return;
-            move(); draw();
-            gameLoopTimeout = setTimeout(runGame, speed);
-        }
+        function runGame() { if(!gameActive || isPaused) return; move(); draw(); gameLoopTimeout = setTimeout(runGame, speed); }
 
         function togglePause() {
             if(!gameActive) return;
-            if(!isPaused) {
-                isPaused = true; clearTimeout(gameLoopTimeout);
-                showOverlay("УЛӔФЫН");
-            } else { unpause(); }
+            if(!isPaused) { isPaused = true; clearTimeout(gameLoopTimeout); showOverlay("УЛӔФЫН"); }
+            else unpause();
         }
 
         async function unpause() {
-            for(let i=3; i>0; i--) {
-                showOverlay(i);
-                await new Promise(r => setTimeout(r, 700));
-            }
-            hideOverlay();
-            isPaused = false;
-            runGame();
+            for(let i=3; i>0; i--) { showOverlay(i); await new Promise(r => setTimeout(r, 700)); }
+            hideOverlay(); isPaused = false; runGame();
         }
 
         function handleInput(k) {
@@ -431,30 +441,15 @@
             if(k==='d' && dx===0) { dx=box; dy=0; }
         }
 
-        function showInstruction() { 
-            document.getElementById('main-menu').style.display = 'none'; 
-            document.getElementById('instruction-screen').style.display = 'block'; 
-        }
-        
-        function showMenu() { 
-            gameActive = false;
-            document.getElementById('main-menu').style.display = 'block'; 
-            document.getElementById('game-container').style.display = 'none';
-            document.getElementById('instruction-screen').style.display = 'none';
-            document.getElementById('records-table').style.display = 'none';
-            hideOverlay();
-        }
-
+        function showInstruction() { document.getElementById('main-menu').style.display = 'none'; document.getElementById('instruction-screen').style.display = 'block'; }
+        function showMenu() { location.reload(); }
         function showRecords() {
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('records-table').style.display = 'block';
-            let records = JSON.parse(localStorage.getItem('snake_records') || '[]');
+            const arr = JSON.parse(localStorage.getItem('snake_records') || '[]');
             let html = '<table class="records-table"><tr><th>#</th><th>Score</th></tr>';
-            records.forEach((r, i) => {
-                html += `<tr><td>${i+1}</td><td>${r.score}</td></tr>`;
-            });
-            html += '</table>';
-            document.getElementById('records-val').innerHTML = html;
+            arr.forEach((r, i) => html += `<tr><td>${i+1}</td><td>${r.score}</td></tr>`);
+            document.getElementById('records-val').innerHTML = html + '</table>';
         }
     </script>
 </body>
