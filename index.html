@@ -171,7 +171,11 @@
             cursor: pointer;
             color: #1a1a1a;
             font-weight: bold;
-            transition: 0.2s;
+            transition: all 0.2s;
+        }
+
+        .menu-btn:active {
+            transform: scale(0.97);
         }
 
         #game-container {
@@ -181,6 +185,32 @@
             align-items: center;
             width: 95%;
             max-width: 500px;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 480px) {
+            #game-container {
+                width: 100%;
+                max-width: 100%;
+                padding: 8px;
+            }
+
+            #top-info {
+                top: 60px;
+                font-size: 16px;
+            }
+
+            .game-info {
+                font-size: 1.2em;
+                margin: 8px 0;
+            }
+
+            canvas {
+                border: 2px solid #3a3a3a;
+                width: 100%;
+                aspect-ratio: 1;
+                max-width: 100%;
+            }
         }
 
         .game-info {
@@ -200,16 +230,65 @@
             width: 100%;
         }
 
-        #mobile-joy {
+        #mobile-controls {
             display: none;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin: 15px 0;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin: 12px 0 0 0;
+            gap: 0;
         }
 
-        .joy-circle {
-            width: 60px;
-            height: 60px;
+        #top-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: 280px;
+            height: 70px;
+        }
+
+        #top-buttons .side-button {
+            width: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #top-buttons .side-button .menu-btn {
+            width: 70px;
+            height: 50px;
+            padding: 0;
+            font-size: 0.85em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #joy-with-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0;
+        }
+
+        #mobile-joy {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 12px;
+        }
+
+        .dpad-btn {
+            position: absolute;
+            width: 55px;
+            height: 55px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--primary);
             border-radius: 50%;
@@ -217,10 +296,94 @@
             justify-content: center;
             align-items: center;
             color: var(--primary);
-            font-size: 24px;
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.1s;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            padding: 0;
+            margin: 0;
         }
 
-        @media (pointer: coarse) { #mobile-joy { display: grid; } }
+        .dpad-btn:active {
+            background: rgba(0, 255, 150, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 150, 0.5);
+            transform: scale(0.95);
+        }
+
+        #dpad-up {
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #dpad-down {
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #dpad-left {
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #dpad-right {
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #dpad-center {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.1s;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #dpad-center:active {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            transform: scale(0.95);
+        }
+
+        #mobile-control-buttons {
+            display: none;
+        }
+
+        @media (pointer: coarse) { 
+            #mobile-controls { display: flex; }
+        }
+
+        @media (max-width: 480px) {
+            #mobile-joy {
+                width: 180px;
+                height: 180px;
+            }
+
+            .dpad-btn,
+            #dpad-center {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -245,7 +408,7 @@
             <p><b>WASD / Стрелкӕтӕ:</b> Змӕлын</p>
             <p><b>Пробел:</b> Уромӕн (Пауза)</p>
             <p><b>🍎 Красное:</b> Хӕринаг (+1)</p>
-            <p><b>🟡 Золотое:</b> Бонус (+5). У тебя 5 секунд!</p>
+            <p><b>🟡 Золотое:</b> Бонус (+5). У тебя 3 секунды!</p>
             <p><b>🕊️ Дзерассӕ:</b> Птица, ворующая бонусы.</p>
         </div>
         <button class="menu-btn" onclick="showMenu()">Фӕстӕмӕ</button>
@@ -267,18 +430,26 @@
 
         <canvas id="game-canvas" width="500" height="500"></canvas>
 
-        <div id="mobile-joy">
-            <div></div><div class="joy-circle" onclick="handleInput('w')">▲</div><div></div>
-            <div class="joy-circle" onclick="handleInput('a')">◀</div>
-            <div class="joy-circle" onclick="togglePause()" style="border-color:white; color:white">⏸</div>
-            <div class="joy-circle" onclick="handleInput('d')">▶</div>
-            <div></div><div class="joy-circle" onclick="handleInput('s')">▼</div><div></div>
-        </div>
+        <div id="mobile-controls">
+            <div id="joy-with-buttons">
+                <div id="top-buttons">
+                    <div class="side-button">
+                        <button id="restart-btn" class="menu-btn" onclick="startGame()" style="background:var(--secondary); color:white; display:none">Ног хъазт</button>
+                    </div>
+                    <div style="flex: 0;"></div>
+                    <div class="side-button">
+                        <button class="menu-btn" onclick="showMenu()" style="background:var(--primary)">Меню</button>
+                    </div>
+                </div>
 
-        <div style="margin: 15px 0;">
-            <button id="pause-btn-ui" class="menu-btn" onclick="togglePause()" style="width:180px">Уромӕн</button>
-            <button id="restart-btn" class="menu-btn" style="display:none; width:180px; background:var(--secondary); color:white" onclick="startGame()">Ног хъазт</button>
-            <button class="menu-btn" onclick="showMenu()" style="width:180px">Сӕйраг меню</button>
+                <div id="mobile-joy">
+                    <div class="dpad-btn" id="dpad-up" onclick="handleInput('w')">▲</div>
+                    <div class="dpad-btn" id="dpad-left" onclick="handleInput('a')">◀</div>
+                    <div id="dpad-center" onclick="togglePause()">⏸</div>
+                    <div class="dpad-btn" id="dpad-right" onclick="handleInput('d')">▶</div>
+                    <div class="dpad-btn" id="dpad-down" onclick="handleInput('s')">▼</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -343,7 +514,6 @@
             document.getElementById('records-table').style.display = 'none';
             document.getElementById('game-container').style.display = 'flex';
             document.getElementById('restart-btn').style.display = 'none';
-            document.getElementById('pause-btn-ui').style.display = 'block';
             hideOverlay();
             
             snake = [{x: 10*box, y: 10*box}, {x: 9*box, y: 10*box}, {x: 8*box, y: 10*box}];
@@ -484,10 +654,16 @@
             snake.unshift(head);
             if(head.x === food.x && head.y === food.y) {
                 score++; playHiss(); food = generateFood(); speed = Math.max(60, speed - 1.2);
-                if(score % 5 === 0) { specialFood = generateFood(); specialFoodTimer = 40; }
+                if(score % 5 === 0) { specialFood = generateFood(); specialFoodTimer = 24; }
                 updateScoreUI();
             } else if(specialFood && head.x === specialFood.x && head.y === specialFood.y) {
-                score += 5; playTone(880, 0.1); specialFood = null; firebird.active = false; updateScoreUI();
+                score += 5; playTone(880, 0.1); specialFood = null; firebird.active = false;
+                // Добавляем 4 дополнительных сегмента (всего растет на 5)
+                for(let i = 0; i < 4; i++) {
+                    const last = snake[snake.length - 1];
+                    snake.push({x: last.x, y: last.y});
+                }
+                updateScoreUI();
             } else { snake.pop(); }
 
             if(specialFood && !firebird.active) {
@@ -527,7 +703,7 @@
 
             showOverlay("АМАРДТӔ!", `Фӕткъуытӕ: ${score}`);
             document.getElementById('restart-btn').style.display = 'block';
-            document.getElementById('pause-btn-ui').style.display = 'none';
+
         }
 
         function updateScoreUI() {
@@ -561,19 +737,18 @@
             if(!isPaused) {
                 isPaused = true; clearTimeout(gameLoopTimeout);
                 showOverlay("УЛӔФЫН");
-                document.getElementById('pause-btn-ui').innerText = "Дарддӕр";
+
             } else { unpause(); }
         }
 
         async function unpause() {
             for(let i=5; i>0; i--) {
-                showOverlay(i, "Баулӕфын мӕ ма бауадз(!");
+                showOverlay(i, "Баулӕфын (мӕ бауадз(!");
                 playTone(600 + i*40, 0.05);
                 await new Promise(r => setTimeout(r, 1000));
             }
             hideOverlay();
             isPaused = false;
-            document.getElementById('pause-btn-ui').innerText = "Уромӕн";
             runGame();
         }
 
