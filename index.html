@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="os">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>КАЛМ</title>
+    <style>
+        :root {
+            --primary: #00ff96;
+            --secondary: #ff0055;
+            --bg: #1a1a1a;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg);
+            background-image: radial-gradient(circle at center, #2a2a2a 0%, #1a1a1a 100%);
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #game-overlay {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+            display: none;
+            width: 100%;
+        }
+
+        .status-text {
+            font-size: 3.5em;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+            color: var(--primary);
+            text-shadow: 0 0 25px rgba(0, 255, 150, 0.9), 0 0 10px white;
+            line-height: 1.2;
+        }
+
+        .sub-status-text {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: white;
+            margin-top: 15px;
+            text-shadow: 0 0 15px rgba(0, 255, 150, 0.5);
+            /* allow newline characters in the text to render as line breaks */
+            white-space: pre-line;
+        }
+
+        #top-info {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            z-index: 10;
+            text-align: center;
+            width: 95%;
+            pointer-events: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .game-title {
+            color: var(--primary);
+            font-size: 2.2em;
+            margin: 15px 0;
+            text-shadow: 0 0 15px var(--primary);
+        }
+
+        /* Records table compact styles */
+        .records-panel {
+            text-align: left;
+            width: 100%;
+        }
+        .records-panel .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: monospace;
+            font-size: 1.05em; /* increased font size */
+            color: white;
+        }
+        .records-panel .records-table th,
+        .records-panel .records-table td {
+            padding: 6px 8px;
+            vertical-align: middle;
+        }
+        .records-panel .records-table thead th {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1em;
+        }
+        /* center 'Дата' header above two subcolumns */
+        .records-panel .records-table thead th.date-header {
+            text-align: center;
+            padding: 6px 8px;
+        }
+        .records-panel .records-table thead th.sub-date,
+        .records-panel .records-table thead th.sub-time {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        /* tighter spacing and symmetric alignment for date/time columns */
+        .records-panel .records-table th.col-date,
+        .records-panel .records-table td.rec-date {
+            text-align: center;
+            padding-left: 6px;
+            padding-right: 4px;
+        }
+        .records-panel .records-table th.col-time,
+        .records-panel .records-table td.rec-time {
+            text-align: center;
+            padding-left: 4px;
+            padding-right: 6px;
+        }
+        .records-panel .records-empty {
+            font-size: 1em;
+            color: #ddd;
+            padding: 6px 0;
+        }
+        .records-controls {
+            display:flex;
+            gap:8px;
+            justify-content:center;
+            margin-top:12px;
+        }
+        .menu-btn.small {
+            width: 140px;
+            padding: 8px 10px;
+            font-size: 0.95em;
+            border-radius: 14px;
+        }
+
+        #main-menu, #instruction-screen, #records-table {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1000;
+            width: 85%;
+            max-width: 350px;
+            background: rgba(10, 10, 10, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(0,0,0,1);
+        }
+
+        .menu-btn {
+            display: block;
+            width: 220px;
+            margin: 12px auto;
+            padding: 14px;
+            font-size: 1.1em;
+            background: var(--primary);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            color: #1a1a1a;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        #game-container {
+            display: none;
+            position: relative;
+            flex-direction: column;
+            align-items: center;
+            width: 95%;
+            max-width: 500px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin: 10px 0;
+            color: var(--primary);
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        canvas {
+            border: 3px solid #3a3a3a;
+            border-radius: 10px;
+            background: #000;
+            width: 100%;
+        }
+
+        #mobile-joy {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .joy-circle {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        @media (pointer: coarse) { #mobile-joy { display: grid; } }
+    </style>
+</head>
+<body>
+
+    <div id="top-info"></div>
+
+    <div id="game-overlay">
+        <p id="overlay-main-text" class="status-text"></p>
+        <p id="overlay-sub-text" class="sub-status-text"></p>
+    </div>
+
+    <div id="main-menu">
+        <h1 class="game-title">КАЛМ</h1>
+        <button class="menu-btn" onclick="startGame()">Ног хъазт</button>
+        <button class="menu-btn" onclick="showInstruction()">Инструкци</button>
+        <button class="menu-btn" onclick="showRecords()">Рекордтӕ</button>
+    </div>
+
+    <div id="instruction-screen" style="display:none">
+        <h2 style="color:var(--primary)">Инструкци</h2>
+        <div style="text-align:left; font-size: 0.9em; line-height: 1.5;">
+            <p><b>WASD / Стрелкӕтӕ:</b> Змӕлын</p>
+            <p><b>Пробел:</b> Уромӕн (Пауза)</p>
+            <p><b>🍎 Красное:</b> Хӕринаг (+1)</p>
+            <p><b>🟡 Золотое:</b> Бонус (+5). У тебя 5 секунд!</p>
+            <p><b>🕊️ Дзерассӕ:</b> Птица, ворующая бонусы.</p>
+        </div>
+        <button class="menu-btn" onclick="showMenu()">Фӕстӕмӕ</button>
+    </div>
+
+    <div id="records-table" style="display:none">
+        <h2 style="color:var(--primary)">Рекордтӕ</h2>
+        <div id="records-val" class="records-panel"></div>
+        <div class="records-controls">
+            <button class="menu-btn small" onclick="showMenu()">Фӕстӕмӕ</button>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div class="game-info">
+            <span>🍎: <span id="score">0</span></span>
+            <span>🏆: <span id="highscore">0</span></span>
+        </div>
+
+        <canvas id="game-canvas" width="500" height="500"></canvas>
+
+        <div id="mobile-joy">
+            <div></div><div class="joy-circle" onclick="handleInput('w')">▲</div><div></div>
+            <div class="joy-circle" onclick="handleInput('a')">◀</div>
+            <div class="joy-circle" onclick="togglePause()" style="border-color:white; color:white">⏸</div>
+            <div class="joy-circle" onclick="handleInput('d')">▶</div>
+            <div></div><div class="joy-circle" onclick="handleInput('s')">▼</div><div></div>
+        </div>
+
+        <div style="margin: 15px 0;">
+            <button id="pause-btn-ui" class="menu-btn" onclick="togglePause()" style="width:180px">Уромӕн</button>
+            <button id="restart-btn" class="menu-btn" style="display:none; width:180px; background:var(--secondary); color:white" onclick="startGame()">Ног хъазт</button>
+            <button class="menu-btn" onclick="showMenu()" style="width:180px">Сӕйраг меню</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const box = 25;
+
+        let snake, food, specialFood, dx, dy, score, gameActive, isPaused, speed;
+        let gameLoopTimeout;
+        let firebird = { x: -100, y: -100, active: false, state: 'idle' };
+        let specialFoodTimer = 0;
+        let audioCtx;
+
+        function playHiss() {
+            if (!audioCtx) return;
+            const bufferSize = audioCtx.sampleRate * 0.12;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass'; filter.frequency.value = 5000;
+            const g = audioCtx.createGain();
+            g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            noise.connect(filter); filter.connect(g); g.connect(audioCtx.destination);
+            noise.start();
+        }
+
+        function playTone(freq, duration) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function showOverlay(main, sub = '') {
+            const overlay = document.getElementById('game-overlay');
+            const mainEl = document.getElementById('overlay-main-text');
+            const subEl = document.getElementById('overlay-sub-text');
+            mainEl.innerText = main;
+            subEl.innerText = sub;
+            // if this is the game-over title, color it red; otherwise reset to CSS default
+            if (main === 'АМАРДТӔ!') mainEl.style.color = 'red';
+            else mainEl.style.color = '';
+            overlay.style.display = 'block';
+        }
+
+        function hideOverlay() { document.getElementById('game-overlay').style.display = 'none'; }
+
+        function startGame() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('instruction-screen').style.display = 'none';
+            document.getElementById('records-table').style.display = 'none';
+            document.getElementById('game-container').style.display = 'flex';
+            document.getElementById('restart-btn').style.display = 'none';
+            document.getElementById('pause-btn-ui').style.display = 'block';
+            hideOverlay();
+            
+            snake = [{x: 10*box, y: 10*box}, {x: 9*box, y: 10*box}, {x: 8*box, y: 10*box}];
+            dx = box; dy = 0; score = 0; speed = 135;
+            gameActive = true; isPaused = false;
+            food = generateFood(); specialFood = null; firebird.active = false;
+            updateScoreUI();
+            runGame();
+        }
+
+        function generateFood() {
+            return {
+                x: Math.floor(Math.random() * (canvas.width/box)) * box,
+                y: Math.floor(Math.random() * (canvas.height/box)) * box
+            };
+        }
+
+        function drawFirebird() {
+            ctx.save();
+            ctx.translate(firebird.x, firebird.y);
+            ctx.fillStyle = 'gold';
+            ctx.shadowBlur = 15; ctx.shadowColor = 'orange';
+            ctx.beginPath(); ctx.ellipse(0, 0, 15, 7, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(15, -5, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'orange';
+            ctx.beginPath(); ctx.moveTo(20, -6); ctx.lineTo(28, -4); ctx.lineTo(20, -2); ctx.fill();
+            ctx.fillStyle = 'gold';
+            let flap = Math.sin(Date.now() / 80) * 15;
+            ctx.beginPath(); ctx.moveTo(0, -2); ctx.quadraticCurveTo(-5, -20 + flap, -20, -10 + flap); ctx.quadraticCurveTo(-5, -5 + flap, 0, -2); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(-35, -12); ctx.lineTo(-28, 0); ctx.lineTo(-35, 12); ctx.closePath(); ctx.fill();
+            ctx.restore();
+        }
+
+        function draw() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ff3300';
+            ctx.beginPath(); ctx.arc(food.x+box/2, food.y+box/2, box/3.2, 0, Math.PI*2); ctx.fill();
+            
+            if(specialFood) {
+                ctx.fillStyle = 'gold';
+                ctx.shadowBlur = 15; ctx.shadowColor = 'gold';
+                ctx.beginPath(); ctx.arc(specialFood.x+box/2, specialFood.y+box/2, box/2.5, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            // Nokia-style pixel snake: draw each grid cell as a small pixel-pattern on olive background
+            const patternRows = 3;
+            const patternCols = 5;
+            const bodyPattern = [
+                [0,1,1,1,0],
+                [1,1,1,1,1],
+                [0,1,1,1,0]
+            ];
+            const headPattern = [
+                [0,1,1,1,0],
+                [1,1,1,1,1],
+                [0,1,1,1,0]
+            ];
+            const unit = Math.max(1, Math.floor(box / patternCols));
+            const padX = Math.floor((box - unit * patternCols) / 2);
+            const padY = Math.floor((box - unit * patternRows) / 2);
+            // green pixel colors: яркая голова и тёмное тело
+            const headPixelColor = '#00ff96';
+            const bodyPixelColor = '#007f4d';
+
+            snake.forEach((part, i) => {
+                const isHead = i === 0;
+                const xGrid = part.x;
+                const yGrid = part.y;
+
+                // small visual wiggle (doesn't affect game logic)
+                const t = Date.now() / 200;
+                const amplitude = Math.max(0, Math.floor(box * 0.12));
+                const wiggle = Math.round(Math.sin(t + i * 0.6) * amplitude);
+                const px = xGrid + (dx === 0 ? wiggle : 0);
+                const py = yGrid + (dy === 0 ? wiggle : 0);
+
+                const pat = isHead ? headPattern : bodyPattern;
+
+                // draw main pattern pixels
+                for (let r = 0; r < patternRows; r++) {
+                    for (let c = 0; c < patternCols; c++) {
+                        if (!pat[r][c]) continue;
+                        const sx = px + padX + c * unit;
+                        const sy = py + padY + r * unit;
+                        ctx.fillStyle = isHead ? headPixelColor : bodyPixelColor;
+                        ctx.fillRect(sx, sy, Math.max(1, unit - 1), Math.max(1, unit - 1));
+                    }
+                }
+
+                // дополнительно: соединения между сегментами и мягкие углы
+                const prev = i > 0 ? snake[i - 1] : null;
+                const next = i + 1 < snake.length ? snake[i + 1] : null;
+                const connColor = isHead ? headPixelColor : bodyPixelColor;
+
+                function drawConn(dxn, dyn) {
+                    // dxn/dyn in {-1,0,1}
+                    const cx = px + Math.floor(box / 2) + dxn * Math.floor(unit / 1.8);
+                    const cy = py + Math.floor(box / 2) + dyn * Math.floor(unit / 1.8);
+                    ctx.fillStyle = connColor;
+                    ctx.fillRect(cx - Math.floor(unit/2), cy - Math.floor(unit/2), Math.max(1, unit), Math.max(1, unit));
+                }
+
+                if (prev) {
+                    const dxn = Math.sign(prev.x - xGrid);
+                    const dyn = Math.sign(prev.y - yGrid);
+                    if (dxn !== 0 || dyn !== 0) drawConn(dxn, dyn);
+                }
+                if (next) {
+                    const dxn2 = Math.sign(next.x - xGrid);
+                    const dyn2 = Math.sign(next.y - yGrid);
+                    if (dxn2 !== 0 || dyn2 !== 0) drawConn(dxn2, dyn2);
+                }
+
+                // eyes for head (use dark pixel for contrast)
+                if (isHead) {
+                    ctx.fillStyle = '#001400';
+                    const ex1 = px + padX + 1 * unit;
+                    const ex2 = px + padX + 3 * unit;
+                    const ey = py + padY + 0 * unit;
+                    ctx.fillRect(ex1, ey, Math.max(1, unit - 1), Math.max(1, unit - 1));
+                    ctx.fillRect(ex2, ey, Math.max(1, unit - 1), Math.max(1, unit - 1));
+                }
+            });
+
+            if(firebird.active) drawFirebird();
+        }
+
+        function move() {
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+            if (head.x >= canvas.width) head.x = 0; if (head.x < 0) head.x = canvas.width - box;
+            if (head.y >= canvas.height) head.y = 0; if (head.y < 0) head.y = canvas.height - box;
+
+            if(snake.some(p => p.x === head.x && p.y === head.y)) return gameOver();
+
+            snake.unshift(head);
+            if(head.x === food.x && head.y === food.y) {
+                score++; playHiss(); food = generateFood(); speed = Math.max(60, speed - 1.2);
+                if(score % 5 === 0) { specialFood = generateFood(); specialFoodTimer = 40; }
+                updateScoreUI();
+            } else if(specialFood && head.x === specialFood.x && head.y === specialFood.y) {
+                score += 5; playTone(880, 0.1); specialFood = null; firebird.active = false; updateScoreUI();
+            } else { snake.pop(); }
+
+            if(specialFood && !firebird.active) {
+                specialFoodTimer--;
+                if(specialFoodTimer <= 0) {
+                    firebird.active = true; firebird.x = -40; firebird.y = specialFood.y;
+                    firebird.state = 'stealing'; playTone(400, 0.3);
+                }
+            }
+
+            if(firebird.active) {
+                firebird.x += 8;
+                if(firebird.state === 'stealing' && firebird.x >= specialFood.x) {
+                    specialFood = null; firebird.state = 'leaving';
+                    // show the message on two lines
+                    showOverlay("", "Ацы Дзерассӕйӕн\nта цы зӕгъон!");
+                    setTimeout(() => { if(!isPaused && gameActive) hideOverlay(); }, 3000);
+                }
+                if(firebird.x > canvas.width + 50) firebird.active = false;
+            }
+        }
+
+        function gameOver() {
+            gameActive = false; playTone(150, 0.4);
+            // save record list (append with timestamp)
+            try {
+                const recKey = 'snake_records';
+                const raw = localStorage.getItem(recKey) || '[]';
+                const arr = JSON.parse(raw);
+                arr.push({ score: score, at: Date.now() });
+                // sort descending by score so top record is first
+                arr.sort((a, b) => (b.score || 0) - (a.score || 0));
+                // keep reasonable history length
+                if (arr.length > 100) arr.length = 100;
+                localStorage.setItem(recKey, JSON.stringify(arr));
+            } catch (e) { /* ignore storage errors */ }
+
+            showOverlay("АМАРДТӔ!", `Фӕткъуытӕ: ${score}`);
+            document.getElementById('restart-btn').style.display = 'block';
+            document.getElementById('pause-btn-ui').style.display = 'none';
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score').innerText = score;
+            // determine current top score from records (first place)
+            let top = 0;
+            try {
+                const raw = localStorage.getItem('snake_records') || '[]';
+                const arr = JSON.parse(raw);
+                if (arr && arr.length) {
+                    arr.sort((a,b) => (b.score||0) - (a.score||0));
+                    top = arr[0].score || 0;
+                }
+            } catch (e) { /* ignore */ }
+            // fallback to legacy key
+            const hsLegacy = parseInt(localStorage.getItem('snake_hi_final') || 0, 10) || 0;
+            top = Math.max(top, hsLegacy);
+            // update both UI and legacy storage for compatibility
+            try { localStorage.setItem('snake_hi_final', top); } catch (e) {}
+            document.getElementById('highscore').innerText = top;
+        }
+
+        function runGame() {
+            if(!gameActive || isPaused) return;
+            move(); draw();
+            gameLoopTimeout = setTimeout(runGame, speed);
+        }
+
+        function togglePause() {
+            if(!gameActive) return;
+            if(!isPaused) {
+                isPaused = true; clearTimeout(gameLoopTimeout);
+                showOverlay("УЛӔФЫН");
+                document.getElementById('pause-btn-ui').innerText = "Дарддӕр";
+            } else { unpause(); }
+        }
+
+        async function unpause() {
+            for(let i=5; i>0; i--) {
+                showOverlay(i, "Баулӕфын мӕ ма бауадз(!");
+                playTone(600 + i*40, 0.05);
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            hideOverlay();
+            isPaused = false;
+            document.getElementById('pause-btn-ui').innerText = "Уромӕн";
+            runGame();
+        }
+
+        function handleInput(k) {
+            if(isPaused || !gameActive) return;
+            if((k==='w'||k==='ArrowUp') && dy===0) { dx=0; dy=-box; }
+            if((k==='s'||k==='ArrowDown') && dy===0) { dx=0; dy=box; }
+            if((k==='a'||k==='ArrowLeft') && dx===0) { dx=-box; dy=0; }
+            if((k==='d'||k==='ArrowRight') && dx===0) { dx=box; dy=0; }
+        }
+
+        document.addEventListener('keydown', e => {
+            if(e.code === 'Space') { e.preventDefault(); togglePause(); }
+            else handleInput(e.key);
+        });
+
+        function showInstruction() { document.getElementById('main-menu').style.display = 'none'; document.getElementById('instruction-screen').style.display = 'block'; }
+        function showMenu() { 
+            gameActive = false; isPaused = false; clearTimeout(gameLoopTimeout);
+            document.getElementById('main-menu').style.display = 'block'; 
+            document.getElementById('instruction-screen').style.display = 'none'; 
+            document.getElementById('records-table').style.display = 'none'; 
+            document.getElementById('game-container').style.display = 'none';
+            hideOverlay();
+        }
+        function showRecords() {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('records-table').style.display = 'block';
+            // render last 5 records as a compact table (newest first)
+            const recKey = 'snake_records';
+            const raw = localStorage.getItem(recKey) || '[]';
+            let arr = [];
+            try { arr = JSON.parse(raw); } catch (e) { arr = []; }
+            // sort by score descending and take top 5
+            arr.sort((a,b) => (b.score||0) - (a.score||0));
+            arr = arr.slice(0,5);
+            const container = document.getElementById('records-val');
+            if (arr.length === 0) {
+                container.innerHTML = '<div class="records-empty">Нет рекордов</div>';
+                return;
+            }
+            let html = '<table class="records-table">';
+            // single-row header: keep compact columns
+            html += '<thead><tr><th>#</th><th>Хыгъд</th><th class="col-date">Датӕ</th><th class="col-time">Рӕстӕг</th></tr></thead><tbody>';
+            arr.forEach((r, idx) => {
+                const num = idx + 1;
+                const scoreVal = r && r.score != null ? r.score : r;
+                let dateOnly = '';
+                let timeOnly = '';
+                if (r && r.at) {
+                    const d = new Date(r.at);
+                    dateOnly = d.toLocaleDateString();
+                    timeOnly = d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+                }
+                html += `<tr style="border-top:1px solid rgba(255,255,255,0.04)"><td>${num}</td><td>${scoreVal}</td><td class="rec-date">${dateOnly}</td><td class="rec-time">${timeOnly}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        
+    </script>
+</body>
+</html>
