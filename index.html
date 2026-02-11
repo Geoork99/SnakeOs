@@ -186,13 +186,18 @@
             width: 95%;
             max-width: 500px;
             padding: 10px 0;
+            /* reserve space for fixed mobile controls */
+            padding-bottom: calc(env(safe-area-inset-bottom, 12px) + 160px);
         }
+        
 
         @media (max-width: 480px) {
             #game-container {
                 width: 100%;
-                max-width: 100%;
+                max-width: 420px;
                 padding: 8px;
+                /* smaller reserved bottom space on small screens */
+                padding-bottom: calc(env(safe-area-inset-bottom, 12px) + 120px);
             }
 
             #top-info {
@@ -211,6 +216,10 @@
                 aspect-ratio: 1;
                 max-width: 100%;
             }
+
+            /* tweak dpad sizes for small devices */
+            #mobile-joy { width: 180px; height: 150px; }
+            .dpad-btn, #dpad-center { width: 56px; height: 56px; font-size: 20px; }
         }
 
         .game-info {
@@ -230,20 +239,40 @@
             width: 100%;
         }
 
+        /* wrapper for canvas so we can position menu/control overlays relative to the field */
+        #canvas-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* menu button centered above the field */
+        #canvas-menu {
+            position: absolute;
+            top: -65px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 70;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            pointer-events: auto;
+        }
+
         /* Mobile controls: fixed above safe area for phones */
         #mobile-controls {
             display: none;
             position: fixed;
             left: 50%;
             transform: translateX(-50%);
-            bottom: calc(env(safe-area-inset-bottom, 12px) + 18px);
+            /* move controls slightly higher to avoid overlap with canvas */
+            bottom: calc(env(safe-area-inset-bottom, 12px) + 140px);
             z-index: 60;
             width: calc(100% - 32px);
             max-width: 420px;
             pointer-events: auto;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             padding-bottom: env(safe-area-inset-bottom, 8px);
         }
 
@@ -285,8 +314,8 @@
         /* D-pad area */
         #mobile-joy {
             position: relative;
-            width: 220px;
-            height: 180px;
+            width: 260px; /* стандартная ширина для крестовидного d-pad */
+            height: 240px; /* увеличена высота для лучшего разделения кнопок */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -296,10 +325,10 @@
 
         .dpad-btn {
             position: absolute;
-            width: 64px;
-            height: 64px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 2px solid var(--primary);
+            width: 72px;
+            height: 72px;
+            background: rgba(0,0,0,0.12);
+            border: 2px solid rgba(0,255,150,0.95);
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -318,21 +347,23 @@
         .dpad-btn:active {
             background: var(--primary);
             color: #04120a;
-            box-shadow: 0 0 18px rgba(0,255,150,0.18);
+            box-shadow: 0 0 22px rgba(0,255,150,0.22);
             transform: scale(0.96);
         }
 
-        #dpad-up { top: 8px; left: 50%; transform: translateX(-50%); }
-        #dpad-down { bottom: 8px; left: 50%; transform: translateX(-50%); }
-        #dpad-left { left: 14px; top: 50%; transform: translateY(-50%); }
-        #dpad-right { right: 14px; top: 50%; transform: translateY(-50%); }
+        /* стандартное расположение крестовидного d-pad */
+        #dpad-up { top: 12px; left: 50%; transform: translateX(-50%); }
+        #dpad-down { bottom: 12px; left: 50%; transform: translateX(-50%); }
+        /* левый/правый по краям области dpad для удобства пальца */
+        #dpad-left { left: 18px; top: 50%; transform: translateY(-50%); }
+        #dpad-right { right: 18px; top: 50%; transform: translateY(-50%); }
 
         #dpad-center {
             position: absolute;
             width: 72px;
             height: 72px;
-            background: rgba(255,255,255,0.02);
-            border: 3px solid var(--primary);
+            background: rgba(0,0,0,0.12);
+            border: 3px solid rgba(0,255,150,0.95);
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -348,7 +379,7 @@
         #dpad-center:active {
             background: var(--primary);
             color: #04120a;
-            box-shadow: 0 0 20px rgba(0,255,150,0.22);
+            box-shadow: 0 0 22px rgba(0,255,150,0.28);
             transform: scale(0.96);
         }
 
@@ -356,6 +387,20 @@
 
         /* show mobile controls on touch devices */
         @media (pointer: coarse) { #mobile-controls { display: flex; } }
+
+        /* when on touch devices, position controls at bottom of screen for accessibility */
+        @media (pointer: coarse) {
+            #canvas-wrap { position: relative; }
+            #mobile-controls {
+                position: fixed;
+                bottom: calc(env(safe-area-inset-bottom, 12px) + 80px);
+                left: 50%;
+                transform: translateX(-50%);
+                max-width: 420px;
+                width: calc(100% - 32px);
+                pointer-events: auto;
+            }
+        }
 
         /* small screens adjustments */
         @media (max-width: 420px) {
@@ -409,18 +454,21 @@
             <span>🏆: <span id="highscore">0</span></span>
         </div>
 
-        <canvas id="game-canvas" width="500" height="500"></canvas>
+        <div id="canvas-wrap">
+            <canvas id="game-canvas" width="500" height="500"></canvas>
 
-        <div id="mobile-controls">
+            <!-- кнопка Меню: теперь по центру верхнего края игрового поля -->
+            <div id="canvas-menu">
+                <button id="menu-btn-canvas" class="menu-btn" onclick="showMenu()" style="width:120px;">Меню</button>
+            </div>
+
+            <div id="mobile-controls">
             <div id="joy-with-buttons">
                 <div id="top-buttons">
                     <div class="side-button">
                         <button id="restart-btn" class="menu-btn" onclick="startGame()" style="background:var(--secondary); color:white; display:none">Ног хъазт</button>
                     </div>
                     <div style="flex: 0;"></div>
-                    <div class="side-button">
-                        <button class="menu-btn" onclick="showMenu()" style="background:var(--primary)">Меню</button>
-                    </div>
                 </div>
 
                 <div id="mobile-joy">
