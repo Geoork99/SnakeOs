@@ -230,13 +230,21 @@
             width: 100%;
         }
 
+        /* Mobile controls: fixed above safe area for phones */
         #mobile-controls {
             display: none;
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: calc(env(safe-area-inset-bottom, 12px) + 18px);
+            z-index: 60;
+            width: calc(100% - 32px);
+            max-width: 420px;
+            pointer-events: auto;
             flex-direction: column;
             align-items: center;
-            width: 100%;
-            margin: 12px 0 0 0;
-            gap: 0;
+            gap: 8px;
+            padding-bottom: env(safe-area-inset-bottom, 8px);
         }
 
         #top-buttons {
@@ -245,21 +253,21 @@
             justify-content: center;
             gap: 20px;
             width: 280px;
-            height: 70px;
+            height: 64px;
         }
 
         #top-buttons .side-button {
-            width: 70px;
+            width: 72px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
         #top-buttons .side-button .menu-btn {
-            width: 70px;
-            height: 50px;
+            width: 72px;
+            height: 52px;
             padding: 0;
-            font-size: 0.85em;
+            font-size: 0.95em;
             margin: 0;
             display: flex;
             align-items: center;
@@ -271,34 +279,35 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            gap: 0;
+            gap: 4px;
         }
 
+        /* D-pad area */
         #mobile-joy {
             position: relative;
-            width: 200px;
-            height: 200px;
+            width: 220px;
+            height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            margin-top: 12px;
+            margin-top: 0;
         }
 
         .dpad-btn {
             position: absolute;
-            width: 55px;
-            height: 55px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--primary);
+            width: 64px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid var(--primary);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             color: var(--primary);
-            font-size: 22px;
+            font-size: 24px;
             cursor: pointer;
-            transition: all 0.1s;
+            transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
@@ -307,82 +316,54 @@
         }
 
         .dpad-btn:active {
-            background: rgba(0, 255, 150, 0.2);
-            box-shadow: 0 0 10px rgba(0, 255, 150, 0.5);
-            transform: scale(0.95);
+            background: var(--primary);
+            color: #04120a;
+            box-shadow: 0 0 18px rgba(0,255,150,0.18);
+            transform: scale(0.96);
         }
 
-        #dpad-up {
-            top: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        #dpad-down {
-            bottom: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        #dpad-left {
-            left: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        #dpad-right {
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
+        #dpad-up { top: 8px; left: 50%; transform: translateX(-50%); }
+        #dpad-down { bottom: 8px; left: 50%; transform: translateX(-50%); }
+        #dpad-left { left: 14px; top: 50%; transform: translateY(-50%); }
+        #dpad-right { right: 14px; top: 50%; transform: translateY(-50%); }
 
         #dpad-center {
             position: absolute;
-            width: 55px;
-            height: 55px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid white;
+            width: 72px;
+            height: 72px;
+            background: rgba(255,255,255,0.02);
+            border: 3px solid var(--primary);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
-            font-size: 22px;
+            color: var(--primary);
+            font-size: 24px;
             cursor: pointer;
-            transition: all 0.1s;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
+            transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
             padding: 0;
             margin: 0;
         }
 
         #dpad-center:active {
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            transform: scale(0.95);
+            background: var(--primary);
+            color: #04120a;
+            box-shadow: 0 0 20px rgba(0,255,150,0.22);
+            transform: scale(0.96);
         }
 
-        #mobile-control-buttons {
-            display: none;
-        }
+        #mobile-control-buttons { display: none; }
 
-        @media (pointer: coarse) { 
-            #mobile-controls { display: flex; }
-        }
+        /* show mobile controls on touch devices */
+        @media (pointer: coarse) { #mobile-controls { display: flex; } }
 
-        @media (max-width: 480px) {
-            #mobile-joy {
-                width: 180px;
-                height: 180px;
-            }
-
-            .dpad-btn,
-            #dpad-center {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
+        /* small screens adjustments */
+        @media (max-width: 420px) {
+            #mobile-joy { width: 180px; height: 150px; }
+            .dpad-btn { width: 56px; height: 56px; font-size: 20px; }
+            #dpad-center { width: 62px; height: 62px; font-size: 20px; }
+            #top-buttons { width: 240px; gap: 12px; }
+            #top-buttons .side-button .menu-btn { width: 64px; height: 44px; font-size: 0.9em; }
         }
     </style>
 </head>
